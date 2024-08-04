@@ -3,36 +3,44 @@ Questions for Lesson 6
 1. When you enable CRUD operations on a table in the database, you need to add four things
 to your Rails application.  When you generate a scaffold, all four are created.What are they?
 
-
+Models, Views, Contollers, and Routes 
 
 
 2. When you specify a route in config/routes.rb, you need to include certain information.  What
 must be included? In addition, you may specify an additional parameter to create a variable
 that describes the route.  How do you do that? What variable is created?
 
-
+A route includes a verb (GET, POST, PATCH, PUT, DELETE), an URI pattern (path of the URL), and a column for the controller action, and a prefix column 
 
 3. What does the Rails db:migrate command do?
 
-
+The db:migrate command runs a migration after it's generated so that the server works. You must stop the server first.
 
 4. What file do you look at to see the current database schema?
 
+schema.rb 
 
 5. What command shows the routes?
 
+bin/rails routes 
 
 6. How can you start the Rails console? How can you do CRUD operations from the console?
 
+bin/rails console or bin/rails c 
 
 7. What statements are in erb files that make them different from html files?  What are the
 two kinds of special statements, and how are they marked in the erb file? Where are they executed?
 
+ERB files are generated on the server side and used to generate dynamic content. They consist of 2 kinds of embedded Ruby blocks:
+1. starts with <% and does not result in anything being added to HTML, and used for conditional statements and loops 
+2. starts with <%= and generates output by insertion into HTML 
 
 8. Consider this statement: @forum = Forum.new().  Why is Forum capitalized?  Why is @forum not
 capitalized? Why is the @ used?
 
-
+Forum.new is a class method of the Forum model class. Class names are capitalized to distinguish them from variables. The @forums is the instance variable from the index method of the forums controller.
+The '@' symbol is used to denote an instance variable in Ruby. Instance varibles are used to store data that is unique to each instance of a class.
+They are accessible across different instance methods within the same object, allowing you to share data between methods 
 
 9. Consider these statements:
 
@@ -41,6 +49,15 @@ capitalized? Why is the @ used?
 @forum.save(...)
 
 What is the difference between Forum.new() and Forum.create()?  Why can't you do Forum.save(...)?
+
+Forum.new() creates a new instance of of the 'Forum' class but does not save it to the database. You may use this when you want to 
+perform additional operation before saving, such as validating data or modifying attributes. You must then call 'fourm.save' to persist
+it to the database.
+
+'Forum.create()' initializes a new object of the 'Forum' class and immediately save is to the database.
+
+'Forum.save()' is not valid because 'save' is an instance method, not a class method. The 'ssve' method operates on an instance of the 'Forum' class,
+which represents a specific record you want to persist to the database. 
 
 
 10. In the forums controller, you have a method called show:
@@ -56,6 +73,9 @@ is a hash called params that is passed to that method.  And, in this case, the p
 hash has a value, params[:id].  What is the value for this element of the hash? How
 did it get there?
 
-
-
-
+The default behavior for the 'show' action in a controller is responsible for displaying a specific record from the database. 
+It works correctly due to Rails' conventions and the use of the 'before_action' callback. The 'show' action is linked to a route in 
+'config/routes.rb'. This is typically done using the 'resources' method, which generates RESTful routes for the controller actions.
+'resources :forums' creates a route for 'GET /forums/ :id' that maps the 'show' action in the 'ForumsContoller'
+The params hash contains all the parameters passed to the controller action. For the show action, it includes params[:id], which is the ID of the forum to be shown. 
+This ID comes from the URL, as defined by the route. For example, a request to GET /forums/1 will set params[:id] to 1.
