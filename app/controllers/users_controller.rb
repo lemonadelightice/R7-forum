@@ -5,11 +5,6 @@ class UsersController < ApplicationController
  
   def index
     @users = User.all
-    if (session[:current_user])
-      @current_user = User.find(session[:current_user])
-    else
-      @current_user = nil
-    end
   end 
  
   
