@@ -4,7 +4,9 @@ Questions for Lesson 7
 before some or all of the controller actions execute?  Where can you put that
 change so that it affects all controllers?
 
-
+The before_action method ensures that something happens before some or all of the controller actions execute. You can put that method in the ApplicationControllers if you want it to affect all controllers. 
+You can also create a base controller that inherits an ApplicationController and put the before_action there to have specific controllers inherit from the base controller, therefore, allowing before_action 
+to only apply to specific controllers.
 
 2. Consider the following statement:
 
@@ -14,13 +16,16 @@ This creates several files, including two you need to know about.  What are they
 After you do this statement but before starting the rails server, you have to do another
 command.  What is that command?
 
-
+The statement creates a migration (located in db/migrate/) and model file (located in app/models/). The migration file contains instructions for creating the 'subscriptions' table in the database. 
+The model file defines the 'Subscription' model and is name 'subsciption.rb'.
+You have to do a bin/rails db:migrate command before starting the server, to update your database schema. 
 
 3. What table is created as a result of the migration described above? What are the column
 names in that table? What is the primary key? What are the foreign keys?  What does a 
 foreign key do?
 
-
+The 'subscriptions' table is created. The column names are id, forum_id, user_id, priority, created_at, and updated_at. The primary key is the 'id' column, which is the default primary key for ActiveRecord models in 
+Rails. The foreign keys are forum_id and user_id. A foreign keys keep track of relationships between different pieces of data and ensure that the correct records in one table link to the correct records in another table.
 
 4. You have the following lines in the Subscription model:
 
@@ -32,6 +37,7 @@ that if you have a @subscription (an instance of Subscription), you have a coupl
 used to refer to associated database methods.  What are those methods?  (Actually there are a few,
 but there are two in particular you should know.)
 
+These 2 methods are getter (association accessor) methods and setter methods. The getter method allows you to access the associate objects. The setter method allows you to set the associated objects. 
 
 
 5. You have the following lines in the User model.
@@ -43,6 +49,8 @@ has_many :forums, through: :subscriptions
 What are threee important methods that are available to instances of the user model because
 of these lines?
 
+The User model has access to the `subscriptions`, `posts`, and `forums` methods. The methods will return a collection of all `subscriptions`, `posts`, or `forums` associated with the `user`. These models are automatically 
+provided by ActiveRecord based on the `has_many` associations, and allows you to easily query related records. 
 
 
 6. Suppose that user is an instance of the User class. What kind of object is returned by
@@ -67,13 +75,19 @@ Try that last line.  You will see that it creates a subscription object, but tha
 object is not entirely empty.  Which attribute is set? Where does it get that
 value?
 
-
+When you call user.subscriptions, it returns an instance of ActiveRecord::Associations::CollectionProxy. This is a specialized collection that behaves like an array but also has additional methods to work with the associated records.
+The `user.subsciption.new` will set the `user_id` attribute of the new `Subscription` object to the `id` of the `user` instance. This is because the `subscriptions` is an association of the `User` model, and Rails 
+automatically set the foreign key (`user_id`) to maintain the association between the `Subscription` and the `User`.
 
 7. Suppose that user is an instance of User, and forum is an instance of Forum.  What
 Active Record Statement could you use to retrieve all the user's posts for that
 forum?  Hint: You need to have a where in your statement. Try this out in the console.
 You will see the SQL that is executed logged to the screen.  What is that SQL?
 
+Active Record Statement- user.posts.where(forum: forum)
+This assumes that the `Post` model has associations with both `User` and `Forum`, and that the `user` is an instance of `User` and `forum` is an instance of `Forum`.
+
+SQL generated: SELECT "posts".* FROM "posts" WHERE "posts"."user_id" = ? AND "posts"."forum_id" = ?
 
 
 8. You have the following method in your posts controller:
@@ -87,6 +101,17 @@ You will see the SQL that is executed logged to the screen.  What is that SQL?
 There is a security exposure, a risk that a hacker could do damage.  What is that
 risk? What two things are done in your code to prevent the risk?
 
+The potential security exposure is in the 'destroy' method because it risks an unauthorized user being able to delete posts that they do not own. 
+
+Our code has authorization checks that prevents anyone other the owner from performing anyone
+other actions besides reading the post. We use a `before_action` callback in the controller to check if the current user is the owner of the post. 
+
+We also proper instance retrieval. A private method is used to set the @forum instance variable. 
+
+Then, the controller metods for check_logon and check_access implement a security policy. 
+
+We use the post_params, which provides the "stong parameters" security check, when doing a create or update. 
+
 
 
 9. The routes for subscriptions are nested under the forum routes.  How does this
@@ -94,12 +119,17 @@ change the routes?  What is the additional hash key and value that is passed in 
 params hash to the subscriptions controller as a result of this nesting? Which routes
 are unaffected by the nesting?
 
+When the routes for subscriptiosn are nested under forums, it changes the structure of the URL and the parameters passed to the subscriptions controller. Each subscription belongs to a specific forum. 
 
+The additional hash key and value in the 'params' has for the subscriptions controller due to nesting is 'forum_id', which indicates the parent forum.
 
+The unaffected routes are those for 'subscriptions' that do not depend on a specific forum. Any other resources or routes not related to 'subscriptions' an 'forums' would remain the same. 
 
 10. Every action method must do exactly one of two things -- that is, each
 method may do all sorts of logic, but at the end, it has to do one of two
 things, depending on the outcome of the logic.  What are those two things?
+
+The method must ultimately render a view template to display to the user or redirect to antoher action or URL.
 
 
 

@@ -1,0 +1,2 @@
+<%= render @forum.posts.order(updated_at: :desc) %>
+<%= link_to "Create a new post", new_forum_post_path(@forum) %>
